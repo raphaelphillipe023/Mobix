@@ -1,7 +1,7 @@
 <div align="center">
 
 <p align="center">
-  <img src="assets/logo-horizontal.png" alt="MotoServices" width="550"/>
+  <img src="assets/logo-horizontal.png" alt="MobixLogo" width="550"/>
 </p>
 
 **Sistema de Gestão de Transporte Público Urbano**
