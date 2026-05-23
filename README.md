@@ -283,7 +283,7 @@ classDiagram
     FrotaBO             ..> RotaDAO   : Depende
     PainelBordoView ..> FrotaBO : Depende
     VeiculoDAO           o-- VeiculoVO: Manipula
-    VeiculoVO <|-- CartaoIdoso         : Herança
+    
 
 %% ─── Rota / Painel ───────────────────────────────────────────────────────
 
