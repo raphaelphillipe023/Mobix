@@ -79,43 +79,41 @@ git merge develop && git push origin main
 
 **#1 · `[INFRA]` Configurar estrutura de pacotes do projeto**
 `infra`
-- Criar pacotes: `view`, `bo`, `dao`, `model.usuario`, `model.cartao`, `interfaces`, `infra`, `exception`
-- Configurar `pom.xml`: JUnit 5, Mockito, PostgreSQL JDBC Driver
-- Adicionar `.gitignore` para `/target` e `/.idea`
-
----
+* Criar pacotes: `view`, `bo`, `dao`, `model.usuario`, `model.cartao`, `interfaces`, `infra`, `exception`
+* Configurar `pom.xml`: JUnit 5, Mockito, PostgreSQL JDBC Driver
+* Adicionar `.gitignore` para `/target` e `/.idea`
+* Criar árvore de pacotes principal e adicionar no README
 
 **#2 · `[MODEL]` Criar classe abstrata Cartao e subclasses polimórficas**
 `camada: model` `épico: bilhetagem`
-- `Cartao` (abstract): `id`, `saldo`, `titular` | `adicionarSaldo()`, `debitar()`, `calcularTarifa()` abstract
-- `CartaoComum`: sem desconto
-- `CartaoEstudante`: 50% de desconto
-- `CartaoIdoso`: isenção/gratuidade
-
----
+* `Cartao` (abstract): `id`, `saldo`, `titular` | `adicionarSaldo()`, `debitar()`, `calcularTarifa()` abstract
+* `CartaoComum`: sem desconto
+* `CartaoEstudante`: 50% de desconto
+* `CartaoIdoso`: isenção/gratuidade
 
 **#3 · `[MODEL]` Criar VeiculoVO com atributos placa, capacidade e tipo**
 `camada: model` `épico: frota`
-- Atributos: `placa`, `capacidade`, `tipo`
-- Construtor completo + getters
-- Sem lógica de negócio
-
----
+* Atributos: `placa`, `capacidade`, `tipo`
+* Construtor completo + getters
+* Sem lógica de negócio
 
 **#4 · `[MODEL]` Criar RotaVO com List\<String\> para paradas**
 `camada: model` `épico: frota`
-- Atributos: `id`, `nomeLinha`, `status`, `paradas (List<String>)`, `horarioEstimado`
-- Construtor: `RotaVO(int id, String nomeLinha)`
-- Métodos: `adicionarParada()`, `getParadas()`, `getStatus()`, `setStatus()`, `getHorarioEstimado()`, `setHorarioEstimado()`
-
----
+* Atributos: `id`, `nomeLinha`, `status`, `paradas (List<String>)`, `horarioEstimado`
+* Construtor: `RotaVO(int id, String nomeLinha)`
+* Métodos: `adicionarParada()`, `getParadas()`, `getStatus()`, `setStatus()`, `getHorarioEstimado()`, `setHorarioEstimado()`
 
 **#5 · `[MODEL]` Criar hierarquia de usuários e interface Autenticavel**
 `camada: model` `infra`
-- Interface `Autenticavel`: `autenticar(String login, String senha) : boolean`
-- `Usuario`: `login`, `senha`
-- `Administrador extends Usuario implements Autenticavel`
-- `Motorista extends Usuario implements Autenticavel` | atributo `cnh`
+* Interface `Autenticavel`: `autenticar(String login, String senha) : boolean`
+* `Usuario`: `login`, `senha`
+* `Administrador extends Usuario implements Autenticavel`
+* `Motorista extends Usuario implements Autenticavel` | atributo `cnh`
+
+**#25 · `[MODEL]` Criar classe ParadaRotaVO para composição**
+`camada: model` `épico: frota`
+* Atributos: `id`, `idRota`, `nomeParada`, `ordem`
+* Construtor completo + getters
 
 ---
 
@@ -123,155 +121,144 @@ git merge develop && git push origin main
 
 **#6 · `[INFRA]` Criar script SQL das tabelas**
 `infra` `camada: dao`
-```sql
-CREATE TABLE tb_veiculo (placa VARCHAR PK, capacidade INT, tipo VARCHAR);
-CREATE TABLE tb_cartao (id INT PK, saldo DOUBLE, titular VARCHAR, tipo VARCHAR);
-CREATE TABLE tb_rota (id INT PK, nome_linha VARCHAR, status VARCHAR, horario_estimado VARCHAR);
-CREATE TABLE tb_monitoramento (id INT PK, viagem_id INT FK, status VARCHAR, horario VARCHAR);
-```
-
----
+* **Tabela `tb_veiculo`**: `placa` (PK), `capacidade`, `tipo`
+* **Tabela `tb_cartao`**: `id` (PK), `saldo`, `titular`, `tipo`
+* **Tabela `tb_rota`**: `id` (PK), `nome_linha`, `status`, `horario_estimado`
+* **Tabela `tb_parada_rota`**: `id` (PK), `id_rota` (FK), `nome_parada`, `ordem`
+* **Tabela `tb_monitoramento`**: `id` (PK), `viagem_id` (FK), `status`, `horario`
 
 **#7 · `[INFRA]` Implementar ConnectionFactory**
 `infra`
-- Método estático `getConnection() : Connection`
-- Tratamento de `SQLException`
-- Critério de aceite: conexão abre e fecha sem erro com o banco local
-
----
+* Método estático `getConnection() : Connection`
+* Tratamento de `SQLException`
+* Critério de aceite: conexão abre e fecha sem erro com o banco local
 
 **#8 · `[DAO]` Implementar VeiculoDAO**
 `camada: dao` `épico: frota`
-- `salvar(VeiculoVO) : boolean` → `INSERT INTO tb_veiculo`
-- `buscarPorPlaca(String) : VeiculoVO` → `SELECT * FROM tb_veiculo WHERE placa = ?`
-- Usar `PreparedStatement` e `ConnectionFactory`
-
----
+* `salvar(VeiculoVO) : boolean` → `INSERT INTO tb_veiculo`
+* `buscarPorPlaca(String) : VeiculoVO` → `SELECT * FROM tb_veiculo WHERE placa = ?`
+* Usar `PreparedStatement` e `ConnectionFactory`
+* Decorar a classe com a anotação `@Repository` do Spring para permitir a injeção de dependência na camada BO
 
 **#9 · `[DAO]` Implementar CartaoDAO**
 `camada: dao` `épico: bilhetagem`
-- `buscarPorId(int) : Cartao` → instancia subclasse correta pelo campo `tipo` (fábrica)
-- `atualizarSaldo(Cartao) : boolean` → `UPDATE tb_cartao SET saldo = ? WHERE id = ?`
-
----
+* `buscarPorId(int) : Cartao` → instancia subclasse correta pelo campo `tipo` (fábrica)
+* `atualizarSaldo(Cartao) : boolean` → `UPDATE tb_cartao SET saldo = ? WHERE id = ?`
+* Decorar a classe com a anotação `@Repository` do Spring para permitir a injeção de dependência na camada BO
 
 **#10 · `[DAO]` Implementar RotaDAO**
 `camada: dao` `épico: frota` `épico: painel`
-- `buscarRotaPorId(int) : RotaVO`
-- `atualizarStatusRota(int, String) : boolean`
-- `atualizarHorarioEstimado(int, String) : boolean`
-- `listarRotasAtivas() : List<RotaVO>` → `SELECT * FROM rotas INNER JOIN viagens ... WHERE status = 'EM_CURSO'`
+* `buscarRotaPorId(int) : RotaVO`
+* `atualizarStatusRota(int, String) : boolean`
+* `atualizarHorarioEstimado(int, String) : boolean`
+* `listarRotasAtivas() : List<RotaVO>` → `SELECT * FROM rotas INNER JOIN viagens ... WHERE status = 'EM_CURSO'`
+* Decorar a classe com a anotação `@Repository` do Spring para permitir a injeção de dependência na camada BO
+
+**#26 · `[DAO]` Implementar inserção de Cartão e gerenciamento de Paradas**
+`camada: dao` `épico: bilhetagem` `épico: frota`
+* `salvar(Cartao) : boolean` na CartaoDAO → `INSERT INTO tb_cartao (id, saldo, titular, tipo)`
+* `salvarParadas(int idRota, List<String> paradas) : void` na RotaDAO
+* `buscarParadasPorRota(int idRota) : List<String>` na RotaDAO
 
 ---
 
 ### 🟥 Sprint 3 — Regras de Negócio e Testes
 
 **#11 · `[BO]` Implementar FrotaBO**
-`camada: bo` `épico: frota` · Depende de #8 #10
-- `cadastrarVeiculo(VeiculoVO)`: chama `buscarPorPlaca()` antes — rejeita duplicatas
-- `ativarViagem(int idRota, String placa)`: busca rota, atualiza status para `EM_CURSO`
-
----
+`camada: bo` `épico: frota` · **Depende de #8, #10**
+* `cadastrarVeiculo(VeiculoVO)`: chama `buscarPorPlaca()` antes — rejeita duplicatas
+* `ativarViagem(int idRota, String placa)`: busca rota, atualiza status para `EM_CURSO`
+* Decorar a classe com a anotação `@Service` do Spring e injetar as DAOs correspondentes via construtor (`@Autowired`)
 
 **#12 · `[BO]` Implementar BilhetagemBO**
-`camada: bo` `épico: bilhetagem` · Depende de #9 #14
-- `recarregarCartao(int, double)`: busca cartão, `adicionarSaldo()`, persiste
-- `processarEmbarque(int, double)`: `calcularTarifa()`, `debitar()` → lança `SaldoInsuficienteException` se saldo insuficiente
-
----
+`camada: bo` `épico: bilhetagem` · **Depende de #9, #14**
+* `recarregarCartao(int, double)`: busca cartão, `adicionarSaldo()`, persiste
+* `processarEmbarque(int, double)`: `calcularTarifa()`, `debitar()` → lança `SaldoInsuficienteException` se saldo insuficiente
+* Decorar a classe com a anotação `@Service` do Spring e injetar as DAOs correspondentes via construtor (`@Autowired`)
 
 **#13 · `[BO]` Implementar PainelBO**
-`camada: bo` `épico: painel` · Depende de #10
-- `atualizarStatusVeiculo(int, String)`
-- `atualizarHorarioEstimado(int, String)`
-- `buscarProximasPartidas() : List<RotaVO>`
-
----
+`camada: bo` `épico: painel` · **Depende de #10**
+* `atualizarStatusVeiculo(int, String)`
+* `atualizarHorarioEstimado(int, String)`
+* `buscarProximasPartidas() : List<RotaVO>`
+* Decorar a classe com a anotação `@Service` do Spring e injetar as DAOs correspondentes via construtor (`@Autowired`)
 
 **#14 · `[EXCEPTION]` Criar SaldoInsuficienteException**
 `camada: bo` `épico: bilhetagem`
-- `<<exception>>` extends `Exception`
-- Construtor: `SaldoInsuficienteException(String mensagem)`
-
----
+* `<<exception>>` extends `Exception`
+* Construtor: `SaldoInsuficienteException(String mensagem)`
 
 **#15 · `[TESTE]` Testes JUnit — polimorfismo de tarifa**
 `testes` `épico: bilhetagem`
-- `CartaoComumTest`, `CartaoEstudanteTest`, `CartaoIdosoTest`
-- Verificar `calcularTarifa()`, `debitar()` e `adicionarSaldo()` para cada tipo
-
----
+* `CartaoComumTest`, `CartaoEstudanteTest`, `CartaoIdosoTest`
+* Verificar `calcularTarifa()`, `debitar()` e `adicionarSaldo()` para cada tipo
 
 **#16 · `[TESTE]` Testes JUnit — BilhetagemBO com Mockito**
-`testes` `épico: bilhetagem` · Depende de #12 #14
-- Mock de `CartaoDAO`
-- `processarEmbarque()` → saldo ok → débito realizado
-- `processarEmbarque()` → saldo insuficiente → exceção lançada
-- `recarregarCartao()` → saldo atualizado
-
----
+`testes` `épico: bilhetagem` · **Depende de #12, #14**
+* Mock de `CartaoDAO`
+* `processarEmbarque()` → saldo ok → débito realizado
+* `processarEmbarque()` → saldo insuficiente → exceção lançada
+* `recarregarCartao()` → saldo atualizado
 
 **#17 · `[TESTE]` Testes JUnit — FrotaBO com Mockito**
-`testes` `épico: frota` · Depende de #11
-- Mock de `VeiculoDAO` e `RotaDAO`
-- `cadastrarVeiculo()` → placa nova → salvo
-- `cadastrarVeiculo()` → placa duplicada → não salva
-- `ativarViagem()` → status `EM_CURSO`
+`testes` `épico: frota` · **Depende de #11**
+* Mock de `VeiculoDAO` e `RotaDAO`
+* `cadastrarVeiculo()` → placa nova → salvo
+* `cadastrarVeiculo()` → placa duplicada → não salva
+* `ativarViagem()` → status `EM_CURSO`
+
+**#27 · `[EXCEPTION]` Criar PersistenciaException**
+`camada: bo` `infra`
+* `<<exception>>` extends `RuntimeException`
+* Construtor: `PersistenciaException(String mensagem, Throwable causa)`
+* **Justificativa:** Permitirá que os métodos da DAO capturem a `SQLException` (checada) e lancem uma `PersistenciaException` (não-checada), limpando as assinaturas dos métodos (throws) na BO.
+
+**#28 · `[BO]` Atualizar BilhetagemBO com Emissão de Cartão**
+`camada: bo` `épico: bilhetagem` · **Depende de #26**
+* `emitirCartao(Cartao)`: recebe o cartão preenchido da view e encaminha para `CartaoDAO.salvar(cartao)`
 
 ---
 
 ### 🟩 Sprint 4 — Views e Fluxo Final
 
 **#18 · `[VIEW]` Implementar CadastroVeiculoView**
-`camada: view` `épico: frota` · Depende de #11
-- Captura `placa`, `capacidade`, `tipo` via `Scanner`
-- Chama `FrotaBO.cadastrarVeiculo()`
-- Exibe confirmação ou mensagem de duplicidade
-
----
+`camada: view` `épico: frota` · **Depende de #11**
+* Captura `placa`, `capacidade`, `tipo` via `Scanner`
+* Chama `FrotaBO.cadastrarVeiculo()`
+* Exibe confirmação ou mensagem de duplicidade
 
 **#19 · `[VIEW]` Implementar PainelBordoView**
-`camada: view` `épico: frota` · Depende de #11
-- Captura `idRota` e `placaVeiculo` via `Scanner`
-- Chama `FrotaBO.ativarViagem()`
-- Exibe `"Viagem em curso"`
-
----
+`camada: view` `épico: frota` · **Depende de #11**
+* Captura `idRota` e `placaVeiculo` via `Scanner`
+* Chama `FrotaBO.ativarViagem()`
+* Exibe `"Viagem em curso"`
 
 **#20 · `[VIEW]` Implementar GerenciaBilheteriaView**
-`camada: view` `épico: bilhetagem` · Depende de #12
-- Menu: `1) Emitir cartão  2) Recarregar cartão`
-- Captura `idCartao` e `valorRecarga` via `Scanner`
-- Exibe `"Recarga efetuada com sucesso!"`
-
----
+`camada: view` `épico: bilhetagem` · **Depende de #12**
+* Menu: `1) Emitir cartão` | `2) Recarregar cartão`
+* Captura `idCartao` e `valorRecarga` via `Scanner`
+* Exibe `"Recarga efetuada com sucesso!"`
 
 **#21 · `[VIEW]` Implementar ValidadorView**
-`camada: view` `épico: bilhetagem` · Depende de #12 #14
-- Simula leitura do ID do cartão via `Scanner`
-- Chama `BilhetagemBO.processarEmbarque()`
-- Exibe `"Catraca Liberada"` ou trata `SaldoInsuficienteException` com mensagem amigável
-
----
+`camada: view` `épico: bilhetagem` · **Depende de #12, #14**
+* Simula leitura do ID do cartão via `Scanner`
+* Chama `BilhetagemBO.processarEmbarque()`
+* Exibe `"Catraca Liberada"` ou trata `SaldoInsuficienteException` com mensagem amigável
 
 **#22 · `[VIEW]` Implementar TerminalPainelView**
-`camada: view` `épico: painel` · Depende de #13
-- Loop com `Thread.sleep()` simulando atualização periódica
-- Chama `PainelBO.buscarProximasPartidas()`
-- Exibe tabela formatada: `nomeLinha`, `status`, `horarioEstimado`
-
----
+`camada: view` `épico: painel` · **Depende de #13**
+* Loop com `Thread.sleep()` simulando atualização periódica
+* Chama `PainelBO.buscarProximasPartidas()`
+* Exibe tabela formatada: `nomeLinha`, `status`, `horarioEstimado`
 
 **#23 · `[VIEW]` Implementar DispositivoGPSView**
-`camada: view` `épico: painel` · Depende de #13
-- Simula envio de status via `Scanner`
-- Chama `PainelBO.atualizarStatusVeiculo()` e `atualizarHorarioEstimado()`
-- Exibe confirmação de atualização
-
----
+`camada: view` `épico: painel` · **Depende de #13**
+* Simula envio de status via `Scanner`
+* Chama `PainelBO.atualizarStatusVeiculo()` e `atualizarHorarioEstimado()`
+* Exibe confirmação de atualização
 
 **#24 · `[DOC]` Auditoria final e atualização do README**
 `documentacao`
-- Verificar commits de todos os integrantes
-- Atualizar README com diagramas finais
-- Fechar issues pendentes das sprints anteriores
+* Verificar commits de todos os integrantes
+* Atualizar README com diagramas finais
+* Fechar issues pendentes das sprints anteriores
