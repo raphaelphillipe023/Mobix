@@ -147,6 +147,25 @@ O sistema adota um padrão arquitetural rígido em quatro camadas com responsabi
 
 ---
 
+## 📂 Estrutura de Pacotes (Em andamento)
+
+A árvore de pacotes do projeto foi estruturada seguindo o padrão arquitetural rígido solicitado, isolando as responsabilidades e garantindo o desacoplamento entre as camadas:
+
+```text
+src/
+└── main/
+    └── java/
+        ├── bo/            # Regras de negócio, validações e orquestração
+        ├── dao/           # Classes de acesso a dados (JDBC manual / SQL puro)
+        ├── exception/     # Exceções personalizadas (ex: SaldoInsuficienteException)
+        ├── infra/         # Configurações estruturais (ex: ConnectionFactory)
+        ├── interfaces/    # Interfaces de contratos do sistema (ex: Autenticavel)
+        ├── model/         # Entidades/Objetos de valor divididos por domínio
+        │   ├── cartao/    # Cartao, CartaoComum, CartaoEstudante, CartaoIdoso
+        │   └── usuario/   # Usuario, Administrador, Motorista
+        └── view/          # Telas do sistema e captura de entradas (Menus)
+```
+---
 ## Diagrama de Classes
 
 ```mermaid
