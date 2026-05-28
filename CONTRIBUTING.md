@@ -1,4 +1,4 @@
-C# Guia de Contribuição — Mobix
+Guia de Contribuição — Mobix
 
 ## Estratégia de Branches
 
