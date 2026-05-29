@@ -108,10 +108,9 @@ Atualização em tempo real do status logístico dos veículos via GPS de bordo 
 |---|---|---|
 | **Linguagem** | Java 17 | Tipagem forte; suporte robusto a herança e polimorfismo dinâmico. |
 | **Framework** | Spring Boot 3 | Configuração mínima, injeção de dependência e suporte nativo a REST. |
-| **Persistência** | PostgreSQL 15 + JPA + Hibernate | ORM maduro com suporte a herança de entidades. |
+| **Persistência** | PostgreSQL 15 + JDBC | Persistência relacional nativa via `ConnectionFactory` e instruções SQL manuais, atendendo aos requisitos arquiteturais do projeto.|
 | **Build** | Maven 3.9 | Gerenciamento de dependências e ciclo de build padronizado. |
 | **Testes** | JUnit 5 + Mockito | TDD com mocks para BO/DAO sem banco real nos testes unitários. |
-| **Validação** | Jakarta Bean Validation | Anotações `@NotNull`, `@Pattern` etc. nas entidades e VOs. |
 
 ---
 
@@ -138,15 +137,34 @@ O sistema adota um padrão arquitetural rígido em quatro camadas com responsabi
                                                                                              └─────────────────────┘
 ```
 
-| Camada | Responsabilidade |
-|---|---|
-| **VIEW** | Interface com o ator. Captura entradas e exibe resultados — sem cálculos ou acesso ao banco. |
-| **BO** | Cérebro do sistema. Centraliza validações, cálculo polimórfico de tarifa, verificação de saldo e orquestração da persistência. |
-| **DAO** | Comunicação exclusiva com o banco. Traduz operações em SQL (CRUD) e instancia VOs polimorficamente com base nos dados retornados. |
-| **VO** | Transportadores de dados entre camadas. `CartaoVO` possui subclasses polimórficas com `calcularTarifa()` sobrescrito. |
+| Camada | Responsabilidade                                                                                                                                                           |
+|---|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **VIEW** | Interface com o ator. Captura entradas e exibe resultados — sem cálculos ou acesso ao banco.                                                                               |
+| **BO** | Cérebro do sistema. Centraliza validações, cálculo polimórfico de tarifa, verificação de saldo e orquestração da persistência.                                             |
+| **DAO** | Comunicação exclusiva com o banco via **JDBC**. Abre conexões via `ConnectionFactory`, executa queries SQL e faz o mapeamento para instâncias de VOs. |
+| **VO** | Transportadores de dados entre camadas. `CartaoVO` possui subclasses polimórficas com `calcularTarifa()` sobrescrito.                                                      |
 
 ---
 
+## 📂 Estrutura de Pacotes (Em andamento)
+
+A árvore de pacotes do projeto foi estruturada seguindo o padrão arquitetural rígido solicitado, isolando as responsabilidades e garantindo o desacoplamento entre as camadas:
+
+```text
+src/
+└── main/
+    └── java/
+        ├── bo/            # Regras de negócio, validações e orquestração
+        ├── dao/           # Classes de acesso a dados (JDBC manual / SQL puro)
+        ├── exception/     # Exceções personalizadas (ex: SaldoInsuficienteException)
+        ├── infra/         # Configurações estruturais (ex: ConnectionFactory)
+        ├── interfaces/    # Interfaces de contratos do sistema (ex: Autenticavel)
+        ├── model/         # Entidades/Objetos de valor divididos por domínio
+        │   ├── cartao/    # Cartao, CartaoComum, CartaoEstudante, CartaoIdoso
+        │   └── usuario/   # Usuario, Administrador, Motorista
+        └── view/          # Telas do sistema e captura de entradas (Menus)
+```
+---
 ## Diagrama de Classes
 
 ```mermaid
@@ -283,7 +301,7 @@ classDiagram
     FrotaBO             ..> RotaDAO   : Depende
     PainelBordoView ..> FrotaBO : Depende
     VeiculoDAO           o-- VeiculoVO: Manipula
-    VeiculoVO <|-- CartaoIdoso         : Herança
+    
 
 %% ─── Rota / Painel ───────────────────────────────────────────────────────
 
