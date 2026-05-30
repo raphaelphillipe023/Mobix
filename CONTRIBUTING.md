@@ -115,6 +115,14 @@ git merge develop && git push origin main
 * Atributos: `id`, `idRota`, `nomeParada`, `ordem`
 * Construtor completo + getters
 
+**#35 · `[INFRA]` Criar docker-compose.yml para ambiente PostgreSQL**
+`infra`
+* Criar `docker-compose.yml` na raiz do projeto subindo container PostgreSQL 15 com credenciais padronizadas para toda a equipe
+* Definir variáveis: `POSTGRES_DB=mobix`, `POSTGRES_USER=mobix`, `POSTGRES_PASSWORD=mobix`, porta `5432`
+* Adicionar volume para persistência dos dados entre reinicializações do container
+* Incluir instrução de uso no README: `docker-compose up -d`
+* qualquer integrante executa `docker-compose up -d` e o banco sobe pronto para uso, sem configuração manual
+
 ---
 
 ### 🟨 Sprint 2 — Persistência JDBC
