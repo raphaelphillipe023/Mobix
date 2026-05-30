@@ -126,6 +126,7 @@ git merge develop && git push origin main
 * **Tabela `tb_rota`**: `id` (PK), `nome_linha`, `status`, `horario_estimado`
 * **Tabela `tb_parada_rota`**: `id` (PK), `id_rota` (FK), `nome_parada`, `ordem`
 * **Tabela `tb_monitoramento`**: `id` (PK), `viagem_id` (FK), `status`, `horario`
+* tb_parada_rota a tabela não aparece no diagrama arquitetural do README
 
 **#7 · `[INFRA]` Implementar ConnectionFactory**
 `infra`
@@ -159,6 +160,7 @@ git merge develop && git push origin main
 * `salvar(Cartao) : boolean` na CartaoDAO → `INSERT INTO tb_cartao (id, saldo, titular, tipo)`
 * `salvarParadas(int idRota, List<String> paradas) : void` na RotaDAO
 * `buscarParadasPorRota(int idRota) : List<String>` na RotaDAO
+* CartaoDAO no diagrama não tem `salvar()` , `salvarParadas()`, `buscarParadasPorRota()`. Atualizar o diagrama de classes no README.
 
 ---
 
@@ -182,6 +184,7 @@ git merge develop && git push origin main
 * `atualizarHorarioEstimado(int, String)`
 * `buscarProximasPartidas() : List<RotaVO>`
 * Decorar a classe com a anotação `@Service` do Spring e injetar as DAOs correspondentes via construtor (`@Autowired`)
+* PainelBO no diagrama não tem `atualizarHorarioEstimado()`. Atualizar no diagrama de classes do README
 
 **#14 · `[EXCEPTION]` Criar SaldoInsuficienteException**
 `camada: bo` `épico: bilhetagem`
@@ -216,6 +219,7 @@ git merge develop && git push origin main
 **#28 · `[BO]` Atualizar BilhetagemBO com Emissão de Cartão**
 `camada: bo` `épico: bilhetagem` · **Depende de #26**
 * `emitirCartao(Cartao)`: recebe o cartão preenchido da view e encaminha para `CartaoDAO.salvar(cartao)`
+* `BilhetagemBO` no diagrama de classes não tem `emitirCartao()` O diagrama mostra apenas `recarregarCartao()` e `processarEmbarque()`. Atualizar o diagrama no README
 
 ---
 
@@ -262,3 +266,203 @@ git merge develop && git push origin main
 * Verificar commits de todos os integrantes
 * Atualizar README com diagramas finais
 * Fechar issues pendentes das sprints anteriores
+
+### 🟡 Funcionalidades gerais do app — issue-épico por funcionalidade 
+
+
+### #29 · `[FUNCIONALIDADE]` Cadastro de Veículo
+ 
+**Labels:** `funcionalidade` `épico: frota`
+**Milestone:** Sprint 4 (fecha quando a view estiver pronta)
+**Depende de:** #3, #8, #11, #17, #18
+ 
+---
+ 
+> representa a funcionalidade completa de **Cadastro de Veículo** (Épico 1 · Funcionalidade 1). Fica aberta até todas as sub-issues estarem concluídas.
+ 
+**Diagrama de Sequência:** Épico 1 · Funcionalidade 1 (ver README)
+ 
+#### Fluxo principal
+ 
+* Administrador insere `placa`, `capacidade` e `tipo` via `CadastroVeiculoView`
+* `FrotaBO.cadastrarVeiculo()` chama `VeiculoDAO.buscarPorPlaca()` — rejeita duplicatas
+* Se placa nova → `VeiculoDAO.salvar(veiculoVO)` persiste na `tb_veiculo`
+* View exibe `"Veículo cadastrado com sucesso!"` ou mensagem de duplicidade
+#### Sub-issues que compõem esta funcionalidade
+ 
+* `#3` · Criar VeiculoVO com atributos placa, capacidade e tipo
+* `#8` · Implementar VeiculoDAO
+* `#11` · Implementar FrotaBO
+* `#17` · Testes JUnit — FrotaBO com Mockito
+* `#18` · Implementar CadastroVeiculoView
+#### Critério de aceite
+ 
+O fluxo completo (View → BO → DAO → BD) executa sem erro, duplicatas são rejeitadas com mensagem clara e o veículo é persistido corretamente na `tb_veiculo`.
+ 
+---
+ 
+### #30 · `[FUNCIONALIDADE]` Ativação de Rota
+ 
+**Labels:** `funcionalidade` `épico: frota`
+**Milestone:** Sprint 4 (fecha quando a view estiver pronta)
+**Depende de:** #4, #10, #11, #17, #19, #25, #26
+ 
+---
+ 
+> representa a funcionalidade completa de **Ativação de Rota** (Épico 1 · Funcionalidade 2). Fica aberta até todas as sub-issues estarem concluídas.
+ 
+**Diagrama de Sequência:** Épico 1 · Funcionalidade 2 (ver README)
+ 
+#### Fluxo principal
+ 
+* Motorista informa `idRota` e `placaVeiculo` via `PainelBordoView`
+* `FrotaBO.ativarViagem()` chama `RotaDAO.buscarRotaPorId()` para validar a rota
+* `RotaDAO.atualizarStatusRota(idRota, "EM_CURSO")` persiste o novo status
+* View exibe `"Viagem em curso"`
+#### Sub-issues que compõem esta funcionalidade
+ 
+* `#4` · Criar RotaVO com `List<String>` para paradas
+* `#10` · Implementar RotaDAO
+* `#11` · Implementar FrotaBO
+* `#17` · Testes JUnit — FrotaBO com Mockito
+* `#19` · Implementar PainelBordoView
+* `#25` · Criar ParadaRotaVO para composição
+* `#26` · Implementar inserção de Cartão e gerenciamento de Paradas
+#### Critério de aceite
+ 
+O Motorista consegue ativar uma rota existente, o status é atualizado para `EM_CURSO` no banco e a view exibe a confirmação corretamente.
+ 
+---
+ 
+### #31 · `[FUNCIONALIDADE]` Emissão e Recarga de Cartão
+ 
+**Labels:** `funcionalidade` `épico: bilhetagem`
+**Milestone:** Sprint 4 (fecha quando a view estiver pronta)
+**Depende de:** #2, #9, #12, #20, #26, #28
+ 
+---
+ 
+> representa a funcionalidade completa de **Emissão e Recarga de Cartão** (Épico 2 · Funcionalidade 1). Fica aberta até todas as sub-issues estarem concluídas.
+ 
+**Diagrama de Sequência:** Épico 2 · Funcionalidade 1 (ver README)
+ 
+#### Fluxo principal — Emissão
+ 
+* Administrador seleciona a opção `"Emitir cartão"` em `GerenciaBilheteriaView`
+* `BilhetagemBO.emitirCartao(cartao)` encaminha para `CartaoDAO.salvar(cartao)`
+* Cartão é persistido na `tb_cartao` com o tipo correto (`comum`, `estudante` ou `idoso`)
+* View exibe confirmação de emissão
+#### Fluxo principal — Recarga
+ 
+* Administrador seleciona a opção `"Recarregar cartão"` e informa `idCartao` e `valorRecarga`
+* `BilhetagemBO.recarregarCartao(idCartao, valor)` busca o cartão via `CartaoDAO.buscarPorId()`
+* Chama `cartao.adicionarSaldo(valor)` e persiste via `CartaoDAO.atualizarSaldo(cartao)`
+* View exibe `"Recarga efetuada com sucesso!"`
+#### Sub-issues que compõem esta funcionalidade
+ 
+* `#2` · Criar classe abstrata Cartao e subclasses polimórficas
+* `#9` · Implementar CartaoDAO
+* `#12` · Implementar BilhetagemBO
+* `#20` · Implementar GerenciaBilheteriaView
+* `#26` · Implementar inserção de Cartão e gerenciamento de Paradas
+* `#28` · Atualizar BilhetagemBO com Emissão de Cartão
+#### Critério de aceite
+ 
+É possível emitir um cartão novo de qualquer tipo e persistir no banco. A recarga busca o cartão correto, atualiza o saldo e confirma a operação na view.
+ 
+---
+ 
+### #32 · `[FUNCIONALIDADE]` Validação de Embarque
+ 
+**Labels:** `funcionalidade` `épico: bilhetagem`
+**Milestone:** Sprint 4 (fecha quando a view estiver pronta)
+**Depende de:** #2, #9, #12, #14, #15, #16, #21, #27
+ 
+---
+ 
+> representa a funcionalidade completa de **Validação de Embarque** (Épico 2 · Funcionalidade 2). Fica aberta até todas as sub-issues estarem concluídas.
+ 
+**Diagrama de Sequência:** Épico 2 · Funcionalidade 2 (ver README)
+ 
+#### Fluxo principal
+ 
+* Passageiro aproxima o cartão no validador (leitura do ID via `ValidadorView`)
+* `BilhetagemBO.processarEmbarque(idCartao, tarifaBase)` busca o cartão via `CartaoDAO.buscarPorId()`
+* `cartao.calcularTarifa(tarifaBase)` calcula o valor polimorficamente conforme o tipo real
+* **Saldo insuficiente** → lança `SaldoInsuficienteException` → view exibe alerta de erro
+* **Saldo ok** → `cartao.debitar(valor)` → `CartaoDAO.atualizarSaldo(cartao)` → view exibe `"Catraca Liberada"`
+#### Sub-issues que compõem esta funcionalidade
+ 
+* `#2` · Criar classe abstrata Cartao e subclasses polimórficas
+* `#9` · Implementar CartaoDAO
+* `#12` · Implementar BilhetagemBO
+* `#14` · Criar SaldoInsuficienteException
+* `#15` · Testes JUnit — polimorfismo de tarifa
+* `#16` · Testes JUnit — BilhetagemBO com Mockito
+* `#21` · Implementar ValidadorView
+* `#27` · Criar PersistenciaException
+#### Critério de aceite
+ 
+Cartão com saldo suficiente libera a catraca e debita o valor correto conforme o tipo. Cartão sem saldo lança `SaldoInsuficienteException` e exibe mensagem amigável. Os três tipos de cartão (`Comum`, `Estudante`, `Idoso`) calculam a tarifa corretamente.
+ 
+---
+ 
+### #33 · `[FUNCIONALIDADE]` Monitoramento de Status (GPS)
+ 
+**Labels:** `funcionalidade` `épico: painel`
+**Milestone:** Sprint 4 (fecha quando a view estiver pronta)
+**Depende de:** #10, #13, #23
+ 
+---
+ 
+> representa a funcionalidade completa de **Monitoramento de Status via GPS** (Épico 3 · Funcionalidade 1). Fica aberta até todas as sub-issues estarem concluídas.
+ 
+**Diagrama de Sequência:** Épico 3 · Funcionalidade 1 (ver README)
+ 
+#### Fluxo principal
+ 
+* Módulo de Bordo (GPS) envia coordenadas e status via `DispositivoGPSView`
+* `PainelBO.atualizarStatusVeiculo(idViagem, status)` chama `RotaDAO.atualizarStatusRota()`
+* `PainelBO.atualizarHorarioEstimado(idViagem, horario)` persiste o novo horário
+* Banco atualiza `tb_monitoramento` e `tb_rota`
+* View exibe confirmação de atualização
+#### Sub-issues que compõem esta funcionalidade
+ 
+* `#10` · Implementar RotaDAO
+* `#13` · Implementar PainelBO
+* `#23` · Implementar DispositivoGPSView
+#### Critério de aceite
+ 
+O Módulo de Bordo consegue enviar status (`EM_CURSO`, `ATRASADO`, etc.) e novo horário estimado, e os dados são persistidos corretamente no banco.
+ 
+---
+ 
+### #34 · `[FUNCIONALIDADE]` Painel Informativo do Terminal
+ 
+**Labels:** `funcionalidade` `épico: painel`
+**Milestone:** Sprint 4 (fecha quando a view estiver pronta)
+**Depende de:** #10, #13, #22
+ 
+---
+ 
+> representa a funcionalidade completa do **Painel Informativo do Terminal** (Épico 3 · Funcionalidade 2). Fica aberta até todas as sub-issues estarem concluídas.
+ 
+**Diagrama de Sequência:** Épico 3 · Funcionalidade 2 (ver README)
+ 
+#### Fluxo principal
+ 
+* `TerminalPainelView` executa um loop automático com `Thread.sleep()` simulando atualização periódica
+* A cada ciclo chama `PainelBO.buscarProximasPartidas()`
+* `RotaDAO.listarRotasAtivas()` executa `SELECT ... WHERE status = 'EM_CURSO'`
+* Banco retorna os dados → DAO popula `List<RotaVO>` → BO retorna para a view
+* View limpa a tela e exibe tabela formatada com `nomeLinha`, `status` e `horarioEstimado`
+* Passageiro visualiza os horários atualizados no terminal
+#### Sub-issues que compõem esta funcionalidade
+ 
+* `#10` · Implementar RotaDAO
+* `#13` · Implementar PainelBO
+* `#22` · Implementar TerminalPainelView
+#### Critério de aceite
+ 
+O painel exibe em loop as rotas com status `EM_CURSO`, com `nomeLinha`, `status` e `horarioEstimado` formatados em tabela. A tela é limpa e atualizada a cada ciclo sem travamento.
+
