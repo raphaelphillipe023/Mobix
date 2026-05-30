@@ -438,7 +438,7 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    actor MOD as Módulo de Bordo
+    actor MOD as Passageiro
     participant VV as ValidadorView
     participant BBO as BilhetagemBO
     participant CDA as CartaoDAO
