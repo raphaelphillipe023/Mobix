@@ -329,7 +329,7 @@ classDiagram
         +listarRotasAtivas() : List<RotaVO>
     }
 
-    class RotaVO {
+  class RotaVO {
         -id: int
         -nomeLinha: String
         -status: String
@@ -339,10 +339,9 @@ classDiagram
         +getParadas() List~String~
         +getStatus() String
         +setStatus(String status) void
-        +setHorarioEstimado(String horario) : void
-        +getHorarioEstimado() : String
+        +setHorarioEstimado(String horario) void
+        +getHorarioEstimado() String
     }
-
     class ParadaRotaVO {
         -id: int
         -idRota: int
@@ -354,17 +353,13 @@ classDiagram
         +getNomeParada() String
         +getOrdem() int
     }
-
-
     class ListString["List~String~"]
-
-    TerminalPainelView ..> PainelBO   : Depende
-    DispositivoGPSView ..> PainelBO   : Depende
-    PainelBO           ..> RotaDAO    : Depende
-    RotaDAO             o-- RotaVO    : Manipula (Collections)
-    RotaDAO             o-- ParadaRotaVO : Manipula (Persistência)
-    RotaVO             --> ListString : Usa Collection (List)
-    ParadaRotaVO       ..> RotaVO    : Compõe
+    TerminalPainelView ..> PainelBO        : Depende
+    DispositivoGPSView ..> PainelBO        : Depende
+    PainelBO           ..> RotaDAO         : Depende
+    RotaDAO             o-- RotaVO         : Manipula (Collections)
+    RotaDAO             o-- ParadaRotaVO   : Manipula (Persistência)
+    RotaVO             --> ListString      : Usa Collection (List)
 ```
 
 
