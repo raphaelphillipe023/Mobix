@@ -111,6 +111,7 @@ Atualização em tempo real do status logístico dos veículos via GPS de bordo 
 | **Persistência** | PostgreSQL 15 + JDBC | Persistência relacional nativa via `ConnectionFactory` e instruções SQL manuais, atendendo aos requisitos arquiteturais do projeto.|
 | **Build** | Maven 3.9 | Gerenciamento de dependências e ciclo de build padronizado. |
 | **Testes** | JUnit 5 + Mockito | TDD com mocks para BO/DAO sem banco real nos testes unitários. |
+| **Ambiente** | Docker + Docker Compose | Container PostgreSQL padronizado para toda a equipe.
 
 ---
 
