@@ -343,14 +343,30 @@ classDiagram
         +getHorarioEstimado() : String
     }
 
+    class ParadaRotaVO {
+        -id: int
+        -idRota: int
+        -nomeParada: String
+        -ordem: int
+        +ParadaRotaVO(int id, int idRota, String nomeParada, int ordem)
+        +getId() int
+        +getIdRota() int
+        +getNomeParada() String
+        +getOrdem() int
+    }
+
+
     class ListString["List~String~"]
 
-    TerminalPainelView ..> PainelBO : Depende
-    DispositivoGPSView ..> PainelBO : Depende
-    PainelBO           ..> RotaDAO  : Depende
-    RotaDAO             o-- RotaVO  : Manipula (Collections)
+    TerminalPainelView ..> PainelBO   : Depende
+    DispositivoGPSView ..> PainelBO   : Depende
+    PainelBO           ..> RotaDAO    : Depende
+    RotaDAO             o-- RotaVO    : Manipula (Collections)
+    RotaDAO             o-- ParadaRotaVO : Manipula (Persistência)
     RotaVO             --> ListString : Usa Collection (List)
+    ParadaRotaVO       ..> RotaVO    : Compõe
 ```
+
 
 ---
 
