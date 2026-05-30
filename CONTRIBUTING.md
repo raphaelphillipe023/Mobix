@@ -154,6 +154,7 @@ git merge develop && git push origin main
 * `atualizarHorarioEstimado(int, String) : boolean`
 * `listarRotasAtivas() : List<RotaVO>` → `SELECT * FROM rotas INNER JOIN viagens ... WHERE status = 'EM_CURSO'`
 * Decorar a classe com a anotação `@Repository` do Spring para permitir a injeção de dependência na camada BO
+* Usar `PreparedStatement` e `ConnectionFactory` em todos os métodos
 
 **#26 · `[DAO]` Implementar inserção de Cartão e gerenciamento de Paradas**
 `camada: dao` `épico: bilhetagem` `épico: frota`
@@ -161,6 +162,7 @@ git merge develop && git push origin main
 * `salvarParadas(int idRota, List<String> paradas) : void` na RotaDAO
 * `buscarParadasPorRota(int idRota) : List<String>` na RotaDAO
 * CartaoDAO no diagrama não tem `salvar()` , `salvarParadas()`, `buscarParadasPorRota()`. Atualizar o diagrama de classes no README.
+* Usar `PreparedStatement` e `ConnectionFactory` em todos os métodos
 
 ---
 
